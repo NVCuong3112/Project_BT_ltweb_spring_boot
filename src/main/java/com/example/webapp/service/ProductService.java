@@ -4,11 +4,15 @@ import com.example.webapp.dao.IProductDao;
 import com.example.webapp.dao.ProductDAO;
 import com.example.webapp.model.Product;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
  * Lớp dịch vụ quản lý nghiệp vụ Product.
  */
+@Service
 public class ProductService implements IProductService {
 
     private final IProductDao productDAO;
@@ -17,6 +21,7 @@ public class ProductService implements IProductService {
         this.productDAO = new ProductDAO();
     }
 
+    @Autowired
     public ProductService(IProductDao productDAO) {
         this.productDAO = productDAO;
     }

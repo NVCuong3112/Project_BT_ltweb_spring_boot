@@ -78,10 +78,10 @@ INSERT INTO categories (name, description) VALUES
 GO
 
 -- Người dùng mẫu (Mật khẩu: 123456 đã được hash bằng BCrypt)
--- Hash BCrypt mẫu của '123456': $2a$12$K896lHw4U8m.2Dk9ZkC27.h5QnQhP8Q54B3ZqF3lW7kM3s0xM6Wti
+-- Hash BCrypt chuẩn của '123456': $2a$12$wYcSQa8bA0M4wEnPI9QpT.4xqO410w3XKw/N4tkDeawkzxru19jhm
 INSERT INTO users (username, password, email, full_name, status, role) VALUES
-('admin', '$2a$12$K896lHw4U8m.2Dk9ZkC27.h5QnQhP8Q54B3ZqF3lW7kM3s0xM6Wti', 'admin@library.com', N'Quản trị viên Hệ thống', 1, 'ADMIN'),
-('user', '$2a$12$K896lHw4U8m.2Dk9ZkC27.h5QnQhP8Q54B3ZqF3lW7kM3s0xM6Wti', 'user@library.com', N'Nguyễn Văn Thử Nghiệm', 1, 'USER');
+('admin', '$2a$12$wYcSQa8bA0M4wEnPI9QpT.4xqO410w3XKw/N4tkDeawkzxru19jhm', 'admin@library.com', N'Quản trị viên Hệ thống', 1, 'ADMIN'),
+('user', '$2a$12$wYcSQa8bA0M4wEnPI9QpT.4xqO410w3XKw/N4tkDeawkzxru19jhm', 'user@library.com', N'Nguyễn Văn Thử Nghiệm', 1, 'USER');
 GO
 
 -- Sản phẩm mẫu (10 sản phẩm để kiểm tra hiển thị top 10 trang chủ và phân trang)

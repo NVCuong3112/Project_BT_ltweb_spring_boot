@@ -4,72 +4,86 @@ import com.example.webapp.config.JPAConfig;
 import com.example.webapp.model.OtpCode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Lớp DAO quản lý mã OTP với JPA EntityManager.
+ * Khai báo @Repository để Spring Boot tự động nhận diện bean IOtpDao.
  */
+@Repository
+@Transactional
 public class OtpDAO implements IOtpDao {
+
+    @PersistenceContext
+    private EntityManager em;
+
+    private EntityManager getEntityManager() {
+        if (this.em != null) {
+            return this.em;
+        }
+        return JPAConfig.getEntityManager();
+    }
 
     @Override
     public boolean insert(OtpCode otpCode) {
-        EntityManager em = JPAConfig.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
         try {
-            tx.begin();
-            em.persist(otpCode);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
+            EntityManager currentEm = getEntityManager();
+            if (this.em != null) {
+                currentEm.persist(otpCode);
+                return true;
+            } else {
+                EntityTransaction tx = currentEm.getTransaction();
+                tx.begin();
+                currentEm.persist(otpCode);
+                tx.commit();
+                return true;
             }
+        } catch (Exception e) {
             System.err.println("Lỗi insert OtpCode: " + e.getMessage());
             e.printStackTrace();
             return false;
-        } finally {
-            if (em != null && em.isOpen()) {
-                em.close();
-            }
         }
     }
 
     @Override
     public void invalidateOldOtps(String email, String type) {
-        EntityManager em = JPAConfig.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
         try {
-            tx.begin();
-            // Vô hiệu hóa tất cả các OTP cũ chưa dùng của email và type này
+            EntityManager currentEm = getEntityManager();
             String jpql = "UPDATE OtpCode o SET o.used = true WHERE LOWER(o.email) = LOWER(:email) AND o.type = :type AND o.used = false";
-            em.createQuery(jpql)
-              .setParameter("email", email.trim())
-              .setParameter("type", type)
-              .executeUpdate();
-            tx.commit();
+            if (this.em != null) {
+                currentEm.createQuery(jpql)
+                         .setParameter("email", email.trim())
+                         .setParameter("type", type)
+                         .executeUpdate();
+            } else {
+                EntityTransaction tx = currentEm.getTransaction();
+                tx.begin();
+                currentEm.createQuery(jpql)
+                         .setParameter("email", email.trim())
+                         .setParameter("type", type)
+                         .executeUpdate();
+                tx.commit();
+            }
         } catch (Exception e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
             System.err.println("Lỗi invalidateOldOtps: " + e.getMessage());
-        } finally {
-            if (em != null && em.isOpen()) {
-                em.close();
-            }
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OtpCode findValidOtp(String email, String otpCode, String type) {
-        EntityManager em = JPAConfig.getEntityManager();
         try {
+            EntityManager currentEm = getEntityManager();
             String jpql = "SELECT o FROM OtpCode o WHERE LOWER(o.email) = LOWER(:email) " +
                           "AND o.otpCode = :otpCode AND o.type = :type " +
                           "AND o.used = false AND o.expiredAt > :now ORDER BY o.id DESC";
-            TypedQuery<OtpCode> query = em.createQuery(jpql, OtpCode.class);
+            TypedQuery<OtpCode> query = currentEm.createQuery(jpql, OtpCode.class);
             query.setParameter("email", email.trim());
             query.setParameter("otpCode", otpCode.trim());
             query.setParameter("type", type);
@@ -80,38 +94,37 @@ public class OtpDAO implements IOtpDao {
         } catch (Exception e) {
             System.err.println("Lỗi findValidOtp: " + e.getMessage());
             return null;
-        } finally {
-            if (em != null && em.isOpen()) {
-                em.close();
-            }
         }
     }
 
     @Override
     public boolean markAsUsed(int otpId) {
-        EntityManager em = JPAConfig.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
         try {
-            tx.begin();
-            OtpCode otp = em.find(OtpCode.class, otpId);
-            if (otp != null) {
-                otp.setUsed(true);
-                em.merge(otp);
-                tx.commit();
-                return true;
-            }
-            tx.rollback();
-            return false;
-        } catch (Exception e) {
-            if (tx != null && tx.isActive()) {
+            EntityManager currentEm = getEntityManager();
+            if (this.em != null) {
+                OtpCode otp = currentEm.find(OtpCode.class, otpId);
+                if (otp != null) {
+                    otp.setUsed(true);
+                    currentEm.merge(otp);
+                    return true;
+                }
+                return false;
+            } else {
+                EntityTransaction tx = currentEm.getTransaction();
+                tx.begin();
+                OtpCode otp = currentEm.find(OtpCode.class, otpId);
+                if (otp != null) {
+                    otp.setUsed(true);
+                    currentEm.merge(otp);
+                    tx.commit();
+                    return true;
+                }
                 tx.rollback();
+                return false;
             }
+        } catch (Exception e) {
             System.err.println("Lỗi markAsUsed: " + e.getMessage());
             return false;
-        } finally {
-            if (em != null && em.isOpen()) {
-                em.close();
-            }
         }
     }
 }

@@ -1,81 +1,58 @@
-# Java Servlet MVC 3-Tier Web Application
+# Hướng dẫn chạy và sử dụng dự án (Spring Boot 3.4 / 4)
 
-This project demonstrates a complete Java Web Application using Servlet, JSP, JDBC, and following the MVC and 3-Tier Architectures. It covers session-based and cookie-based authentication, and CRUD operations for categories.
+Ứng dụng quản lý thư viện và danh mục, người dùng đã được chuyển đổi hoàn chỉnh sang nền tảng **Spring Boot** với **Spring Data JPA**, **Tomcat nhúng** và **JSP Views**.
 
-## 1. Yêu cầu môi trường
+---
 
-- **JDK**: Java 17 hoặc 21
-- **Maven**: 3.8+
-- **MySQL**: 8.x
-- **Tomcat**: Apache Tomcat 10.x (Jakarta EE 10)
-- **IDE**: IntelliJ IDEA, Eclipse, hoặc VS Code
+## 1. Ứng dụng đã khởi động thành công!
 
-## 2. Tạo database
-
-1. Mở MySQL Console hoặc MySQL Workbench.
-2. Chạy toàn bộ nội dung file `database.sql` để tạo database `servlet_demo`, các bảng và dữ liệu mẫu.
-
-## 3. Cấu hình database
-
-Nếu MySQL của bạn không sử dụng username `root` hoặc password rỗng/password khác, hãy chỉnh sửa file sau:
-
-- File: `src/main/java/com/example/webapp/dao/DBConnection.java`
-- Chỉnh sửa `URL`, `USERNAME`, `PASSWORD`. mặc định:
-  - URL = `jdbc:mysql://localhost:3306/servlet_demo`
-  - USERNAME = `root`
-  - PASSWORD = `""` (hoặc thay bằng password của bạn)
-
-## 4. Build
-
-Di chuyển vào thư mục dự án và chạy Maven:
-
-```bash
-mvn clean package
-```
-
-Lệnh này sẽ tạo ra file `target/servlet-mvc-demo.war`.
-
-## 5. Deploy
-
-Copy file `servlet-mvc-demo.war` vào thư mục `webapps` của Apache Tomcat:
-`[Tomcat_Path]/webapps/`
-
-Khởi động Tomcat (`bin/startup.bat` hoặc qua IDE).
-
-## 6. Run
-
-Truy cập URL sau trên trình duyệt:
-
+Khi thấy dòng log sau trong console:
 ```text
-http://localhost:8080/servlet-mvc-demo/
+Tomcat started on port 8080 (http) with context path '/'
+Started Application in 8.89 seconds
 ```
+Nghĩa là server web nội bộ đã sẵn sàng nhận request từ trình duyệt tại cổng `8080`.
 
-## 7. Account demo
+---
 
-- **Admin**: username: `admin` / password: `123456`
-- **User**: username: `user` / password: `123456`
+## 2. Các liên kết kiểm tra trên trình duyệt
 
-## 8. Test Cookie
+Hãy mở trình duyệt (Google Chrome, Microsoft Edge, Firefox...) và truy cập các liên kết sau:
 
-1. Nhấp vào **Cookie Login**.
-2. Nhập username/password.
-3. Tích chọn **Remember Me**.
-4. Nhấn **Login**.
-5. Nhấn **Logout**.
-6. Quay lại **Cookie Login** -> Bạn sẽ thấy username đã được tự động điền (Đọc từ Cookie).
+### 2.1 Quản lý Danh mục (Category Management)
+- **URL danh sách**: [http://localhost:8080/admin/categories](http://localhost:8080/admin/categories)
+- **Tìm kiếm danh mục**: Nhập từ khóa vào ô tìm kiếm ở đầu trang -> bấm **Tìm kiếm** (URL dạng `http://localhost:8080/admin/categories?keyword=cong+nghe`).
+- **Thêm danh mục**: [http://localhost:8080/admin/categories/add](http://localhost:8080/admin/categories/add)
+- **Sửa / Xóa**: Bấm trực tiếp nút **Sửa** hoặc **Xóa** ở cột "Thao tác" trên bảng danh mục.
 
-## 9. Test Session
+### 2.2 Quản lý Người dùng (User Management)
+- **URL danh sách**: [http://localhost:8080/admin/users](http://localhost:8080/admin/users)
+- **Tìm kiếm người dùng**: Nhập `username` hoặc `email` vào thanh tìm kiếm ở đầu trang -> bấm **Tìm kiếm** (sử dụng derived query method `findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase`).
+- **Xem chi tiết người dùng**: Bấm nút **Xem** (URL: `http://localhost:8080/admin/users/detail?id=1`).
+- **Sửa vai trò & Trạng thái**: Bấm nút **Sửa** (URL: `http://localhost:8080/admin/users/edit?id=1`) để thay đổi Role (`ADMIN`/`USER`) và Status (`Đã kích hoạt`/`Chưa kích hoạt`).
+- **Xóa tài khoản**: Bấm nút **Xóa** kèm xác nhận popup.
 
-1. Nhấp vào **Session Login**.
-2. Đăng nhập thành công.
-3. Truy cập phần **Categories** (hoặc Dashboard).
-4. Kiểm tra bạn có thể xem các danh mục (Session đã được tạo).
-5. Nhấn **Logout**.
-6. Thử truy cập lại URL trang Categories -> Hệ thống sẽ bắt buộc chuyển hướng về trang Login (vì Session đã bị hủy).
+### 2.3 Các trang chức năng chung
+- **Trang chủ**: [http://localhost:8080/](http://localhost:8080/)
+- **Đăng nhập**: [http://localhost:8080/login](http://localhost:8080/login)
+- **Đăng ký thành viên**: [http://localhost:8080/register](http://localhost:8080/register)
+- **Danh sách sản phẩm**: [http://localhost:8080/product](http://localhost:8080/product)
+- **Bảng điều khiển**: [http://localhost:8080/dashboard](http://localhost:8080/dashboard)
 
-## 10. Test CRUD
+---
 
-- **Create**: Nhấn `+ Add Category`, nhập thông tin hợp lệ (tối đa 100 ký tự tên, 255 mô tả).
-- **Read**: Xem danh sách các Category trên bảng.
-- **Update**: Nhấn `Edit`, thay đổi thông tin và lưu.
-- **Delete**: Nhấn `Delete`, xác nhận trên hộp thoại để xóa.
+## 3. Tài khoản Demo có sẵn trong Database
+- **Tài khoản Admin**: `admin` / Mật khẩu: `123456`
+- **Tài khoản User**: `user` / Mật khẩu: `123456`
+
+---
+
+## 4. Cách khởi động dự án ở các lần sau
+
+### Cách 1: Chạy trong IntelliJ IDEA
+Mở class `com.example.webapp.Application` và bấm nút **Run ▶**.
+
+### Cách 2: Chạy bằng dòng lệnh Terminal
+```powershell
+.\mvnw.cmd spring-boot:run
+```

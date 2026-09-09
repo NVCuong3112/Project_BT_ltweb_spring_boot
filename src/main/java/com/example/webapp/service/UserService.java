@@ -184,7 +184,9 @@ public class UserService implements IUserService {
         boolean passwordMatched = false;
         try {
             passwordMatched = BCrypt.checkpw(password, user.getPassword());
-        } catch (Exception e) {
+        } catch (Exception ignored) {
+        }
+        if (!passwordMatched && user.getPassword() != null) {
             passwordMatched = user.getPassword().equals(password);
         }
 

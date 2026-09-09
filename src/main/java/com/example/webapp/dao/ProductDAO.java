@@ -8,11 +8,15 @@ import jakarta.persistence.TypedQuery;
 
 import java.util.Collections;
 import java.util.List;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Lớp DAO quản lý Product sử dụng JPA 3.0 (EntityManager).
  * Theo đúng pattern try - catch (rollback) - finally (close em) như CategoryDAO.
  */
+@Repository
+@Transactional
 public class ProductDAO implements IProductDao {
 
     @Override
